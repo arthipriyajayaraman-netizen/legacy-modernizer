@@ -1,0 +1,16 @@
+{
+  "java-runtime": [
+    { "f": "pom.xml", "add": 4, "rem": 4 }
+  ],
+  "spring-boot": [
+    { "f": "pom.xml", "add": 18, "rem": 12 },
+    { "f": "src/main/java/.../Application.java", "add": 6, "rem": 3 }
+  ],
+  "logging": [
+    { "f": "src/main/resources/log4j2.xml", "add": 22, "rem": 0 },
+    { "f": "src/main/resources/log4j.properties", "add": 0, "rem": 14 }
+  ],
+  "junit": [
+    { "f": "src/test/java/.../BillingServiceTest.java", "add": 31, "rem": 22 }
+  ]
+}

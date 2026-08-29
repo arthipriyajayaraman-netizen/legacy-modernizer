@@ -1,0 +1,27 @@
+{
+  "name": "legacy-modernizer",
+  "version": "1.0.0",
+  "description": "AI-assisted Java/Maven repository modernization tool",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "nodemon server/index.js",
+    "guard": "node scripts/guard-path.js",
+    "test:hook": "node scripts/test-hook.js",
+    "validate": "node scripts/validate-e2e.js"
+  },
+  "keywords": ["modernization", "java", "maven", "legacy"],
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.1",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "fast-xml-parser": "^4.5.1",
+    "minimatch": "^9.0.5",
+    "simple-git": "^3.27.0",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
+}

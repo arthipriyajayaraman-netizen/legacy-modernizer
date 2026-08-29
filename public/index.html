@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Legacy Modernizer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+<div class="shell">
+
+  <div class="topbar">
+    <div class="brand">
+      <svg class="mark" viewBox="0 0 34 34" fill="none">
+        <path d="M4 17 L13 8 L13 13 L7 17 L13 21 L13 26 Z" fill="#B8863B"/>
+        <path d="M30 17 L21 26 L21 21 L27 17 L21 13 L21 8 Z" fill="#6E6AF5"/>
+      </svg>
+      <div class="brand-text">
+        <h1>Legacy Modernizer</h1>
+        <p>AI agent · repository modernization</p>
+      </div>
+    </div>
+    <div class="proto-badge">Phase 1 — <b>Java/Maven scan + mock apply</b></div>
+  </div>
+
+  <div class="stepper">
+    <div class="step active" id="stepnav-1" data-step="1">
+      <div class="step-num">1</div>
+      <div>
+        <div class="step-label">Connect</div>
+        <div class="step-sub">repo url</div>
+      </div>
+    </div>
+    <div class="step-connector"></div>
+    <div class="step" id="stepnav-2" data-step="2">
+      <div class="step-num">2</div>
+      <div>
+        <div class="step-label">Review &amp; Modernize</div>
+        <div class="step-sub">select · apply</div>
+      </div>
+    </div>
+    <div class="step-connector"></div>
+    <div class="step" id="stepnav-3" data-step="3">
+      <div class="step-num">3</div>
+      <div>
+        <div class="step-label">Publish</div>
+        <div class="step-sub">push to git</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 1 -->
+  <div class="screen active" id="screen-1">
+    <div class="card">
+      <div class="screen-head">
+        <p class="screen-eyebrow">Step 1 of 3</p>
+        <h2 class="screen-title">Connect a repository</h2>
+        <p class="screen-desc">Point the agent at the legacy codebase you want assessed. It clones read-only and never modifies anything until you approve changes in step 2.</p>
+      </div>
+
+      <div class="connect-card" id="connectCard">
+        <div class="field">
+          <label for="repoUrl">Repository URL</label>
+          <input class="input" id="repoUrl" type="text" placeholder="https://github.com/org/repo.git">
+        </div>
+        <div class="row-2">
+          <div class="field">
+            <label for="branch">Branch to scan</label>
+            <input class="input" id="branch" type="text" value="main">
+          </div>
+          <div class="field">
+            <label for="authMethod">Access method</label>
+            <input class="input plain" id="authMethod" type="text" value="Public HTTPS (read-only)" readonly>
+          </div>
+        </div>
+        <div class="field">
+          <label>Scan depth</label>
+          <input class="input plain" type="text" value="Java/Maven — dependencies, framework versions, deprecated APIs" readonly>
+        </div>
+        <button class="btn btn-primary btn-full" id="scanBtn">Scan repository</button>
+        <div class="scan-status" id="scanStatus" style="display:none;">
+          <span class="dot"></span>
+          <span id="scanStatusText">Cloning repository and analyzing dependency manifests…</span>
+        </div>
+        <div class="error-msg" id="scanError" style="display:none;"></div>
+      </div>
+
+      <div class="assessment-panel" id="assessmentPanel">
+        <div class="screen-head">
+          <p class="screen-eyebrow">Assessment report</p>
+          <h2 class="screen-title">Current implementation</h2>
+          <p class="screen-desc" id="assessmentIntro">Static scan of the cloned repository before any modernization.</p>
+        </div>
+
+        <div class="safety-row" id="safetyRow"></div>
+
+        <div class="stack-grid" id="stackGrid"></div>
+
+        <div class="field">
+          <label>Structure</label>
+          <div id="structureStats" class="screen-desc"></div>
+        </div>
+
+        <div class="field">
+          <label>Risks</label>
+          <ul class="risk-list" id="riskList"></ul>
+        </div>
+
+        <div class="field">
+          <label>Recommended modernization order</label>
+          <ol class="order-list" id="orderList"></ol>
+        </div>
+
+        <button class="btn btn-primary btn-full" id="continueBtn">Continue to review →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 2 -->
+  <div class="screen" id="screen-2">
+    <div class="card">
+      <div class="screen-head">
+        <p class="screen-eyebrow">Step 2 of 3</p>
+        <h2 class="screen-title">Review findings</h2>
+        <p class="screen-desc" id="step2Desc">Select components to modernize — the agent edits code, config, and manifests to match the suggested version.</p>
+      </div>
+
+      <div class="table-toolbar">
+        <span class="repo-chip" id="repoChip">📦 <b>—</b></span>
+        <span class="repo-chip" id="componentCountChip">0 components scanned</span>
+      </div>
+
+      <table class="assets">
+        <thead>
+          <tr>
+            <th style="width:36px;"></th>
+            <th>Component</th>
+            <th>Current</th>
+            <th></th>
+            <th>Suggested</th>
+            <th style="width:90px;">Impact</th>
+          </tr>
+        </thead>
+        <tbody id="assetRows"></tbody>
+      </table>
+
+      <div class="action-bar">
+        <div class="selected-count"><b id="selCount">0</b> of <span id="totalCount">0</span> selected</div>
+        <div style="display:flex; gap:10px;">
+          <button class="btn btn-ghost" id="backBtn">← Back</button>
+          <button class="btn btn-primary" id="modernizeBtn" disabled>Modernize selected</button>
+        </div>
+      </div>
+
+      <div class="changes-panel" id="changesPanel">
+        <div class="changes-head">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+          <h3>Changes applied</h3>
+        </div>
+        <div id="fileDiffList"></div>
+        <button class="btn btn-success" style="margin-top:14px;" id="continuePublishBtn">Continue to publish →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 3 -->
+  <div class="screen" id="screen-3">
+    <div class="card">
+      <div class="screen-head">
+        <p class="screen-eyebrow">Step 3 of 3</p>
+        <h2 class="screen-title">Push to Git</h2>
+        <p class="screen-desc">Changes are staged locally. Confirm the target branch and commit message, then push — nothing leaves the sandbox until you click Publish.</p>
+      </div>
+
+      <div class="publish-form" id="publishForm">
+        <div class="publish-grid">
+          <div>
+            <div class="field">
+              <label>Target repository</label>
+              <input class="input" id="publishRepoUrl" type="text" readonly>
+            </div>
+            <div class="row-2">
+              <div class="field">
+                <label for="newBranch">New branch name</label>
+                <input class="input" id="newBranch" type="text" value="legacy-modernizer/batch-1">
+              </div>
+              <div class="field">
+                <label for="baseBranch">Base branch</label>
+                <input class="input" id="baseBranch" type="text" value="main">
+              </div>
+            </div>
+            <div class="field">
+              <label for="commitMsg">Commit message</label>
+              <textarea class="textarea" id="commitMsg" rows="3"></textarea>
+            </div>
+            <div class="toggle-row" style="border-top:1px solid var(--border); border-bottom:1px solid var(--border);">
+              <div>
+                <div class="toggle-label">Open a pull request</div>
+                <div class="toggle-sub">Recommended — lets the team review before merging to main</div>
+              </div>
+              <div class="switch on" id="prToggle"></div>
+            </div>
+            <button class="btn btn-primary btn-full" id="pushBtn">Push changes</button>
+          </div>
+          <div class="summary-box">
+            <h4>Summary</h4>
+            <div class="summary-row"><span>Components modernized</span><span id="sumComponents">0</span></div>
+            <div class="summary-row"><span>Files changed</span><span id="sumFiles">0</span></div>
+            <div class="summary-row"><span>Lines added</span><span class="add" id="sumAdd">+0</span></div>
+            <div class="summary-row"><span>Lines removed</span><span class="rem" id="sumRem">−0</span></div>
+            <div class="summary-row"><span>Target branch</span><span id="sumBranch">main</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="success-state" id="successState">
+        <div class="success-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6L9 17l-5-5"/></svg>
+        </div>
+        <h3>Pushed successfully</h3>
+        <p id="successBranchText"></p>
+        <p id="prStatusText">A pull request was opened against main.</p>
+        <div class="pr-link" id="prLink"></div>
+        <div style="margin-top:24px;">
+          <button class="btn btn-ghost" id="resetBtn">Start over</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Legacy Modernizer — Prototype</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #14161B;
+    --panel: #1C1F26;
+    --panel-raised: #22262F;
+    --border: #2A2E38;
+    --border-soft: #23262E;
+    --text: #E7E9EE;
+    --text-muted: #8B92A3;
+    --text-dim: #5C6270;
+
+    --legacy: #B8863B;
+    --legacy-soft: rgba(184,134,59,0.14);
+    --legacy-border: rgba(184,134,59,0.35);
+
+    --modern: #6E6AF5;
+    --modern-soft: rgba(110,106,245,0.14);
+    --modern-border: rgba(110,106,245,0.4);
+
+    --accent2: #2FD4C0;
+    --accent2-soft: rgba(47,212,192,0.14);
+
+    --danger: #E5654F;
+
+    --font-display: 'Space Grotesk', sans-serif;
+    --font-body: 'Inter', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+
+    --radius: 10px;
+    --radius-sm: 6px;
+  }
+
+  *{ box-sizing: border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+
+  ::selection{ background: var(--modern-soft); color: var(--text); }
+
+  a{ color: inherit; }
+
+  button{ font-family: inherit; }
+
+  /* ---------- Shell ---------- */
+  .shell{
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 28px 32px 80px;
+  }
+
+  .topbar{
+    display:flex;
+    align-items:center;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 30px;
+  }
+
+  .brand{
+    display:flex;
+    align-items:center;
+    gap: 12px;
+  }
+
+  .mark{
+    width: 34px; height: 34px;
+    flex: none;
+  }
+
+  .brand-text h1{
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0;
+    letter-spacing: -0.01em;
+  }
+  .brand-text p{
+    margin: 1px 0 0;
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+
+  .proto-badge{
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    padding: 5px 10px;
+    border-radius: 100px;
+    background: var(--panel);
+    white-space: nowrap;
+  }
+  .proto-badge b{ color: var(--accent2); font-weight: 600; }
+
+  /* ---------- Stepper ---------- */
+  .stepper{
+    display:flex;
+    align-items:center;
+    gap: 0;
+    margin-bottom: 34px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 22px;
+  }
+  .step{
+    display:flex;
+    align-items:center;
+    gap: 12px;
+    cursor: pointer;
+    opacity: 0.45;
+    transition: opacity .15s ease;
+  }
+  .step.active, .step.done{ opacity: 1; }
+  .step-num{
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    display:flex; align-items:center; justify-content:center;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 600;
+    border: 1.5px solid var(--text-dim);
+    color: var(--text-muted);
+    flex: none;
+    transition: all .15s ease;
+  }
+  .step.active .step-num{
+    border-color: var(--modern);
+    color: var(--modern);
+    background: var(--modern-soft);
+  }
+  .step.done .step-num{
+    border-color: var(--accent2);
+    background: var(--accent2);
+    color: #0C1210;
+  }
+  .step-label{
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .step-sub{
+    font-size: 11.5px;
+    color: var(--text-dim);
+    font-family: var(--font-mono);
+  }
+  .step-connector{
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+    margin: 0 18px;
+    position: relative;
+    top: 0;
+  }
+
+  /* ---------- Screens ---------- */
+  .screen{ display: none; animation: fadeUp .35s ease; }
+  .screen.active{ display: block; }
+  @keyframes fadeUp{
+    from{ opacity:0; transform: translateY(6px); }
+    to{ opacity:1; transform: translateY(0); }
+  }
+
+  .card{
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px;
+  }
+
+  .screen-head{ margin-bottom: 22px; }
+  .screen-eyebrow{
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    color: var(--modern);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin: 0 0 6px;
+  }
+  .screen-title{
+    font-family: var(--font-display);
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0 0 6px;
+    letter-spacing: -0.01em;
+  }
+  .screen-desc{
+    font-size: 14px;
+    color: var(--text-muted);
+    margin: 0;
+    max-width: 640px;
+    line-height: 1.5;
+  }
+
+  /* ---------- Screen 1: Connect ---------- */
+  .connect-card{ max-width: 620px; margin: 40px auto 0; text-align: left; }
+  .field{ margin-bottom: 18px; }
+  .field label{
+    display:block;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 7px;
+  }
+  .field .hint{
+    font-size: 11.5px;
+    color: var(--text-dim);
+    margin-top: 6px;
+  }
+  .input, .textarea{
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    padding: 11px 13px;
+    font-family: var(--font-mono);
+    font-size: 13.5px;
+    outline: none;
+    transition: border-color .15s ease;
+  }
+  .input::placeholder{ color: var(--text-dim); font-family: var(--font-mono); }
+  .input:focus, .textarea:focus{ border-color: var(--modern); }
+  .input.plain{ font-family: var(--font-body); font-size: 14px; }
+
+  .row-2{ display:grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+  .btn{
+    display:inline-flex;
+    align-items:center;
+    gap: 8px;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 13.5px;
+    font-weight: 600;
+    padding: 11px 18px;
+    cursor: pointer;
+    transition: transform .1s ease, opacity .15s ease, background .15s ease;
+  }
+  .btn:active{ transform: scale(0.98); }
+  .btn:disabled{ opacity: 0.4; cursor: not-allowed; }
+  .btn-primary{ background: var(--modern); color: #fff; }
+  .btn-primary:hover:not(:disabled){ background: #7d79ff; }
+  .btn-ghost{ background: transparent; color: var(--text-muted); border: 1px solid var(--border); }
+  .btn-ghost:hover:not(:disabled){ color: var(--text); border-color: var(--text-dim); }
+  .btn-success{ background: var(--accent2); color: #0C1210; }
+  .btn-success:hover:not(:disabled){ background: #4fe3d1; }
+  .btn-full{ width: 100%; justify-content: center; padding: 13px 18px; font-size: 14px; margin-top: 6px; }
+
+  .scan-status{
+    margin-top: 22px;
+    display:flex;
+    align-items:center;
+    gap: 10px;
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    color: var(--text-dim);
+  }
+  .dot{ width:6px; height:6px; border-radius:50%; background: var(--text-dim); }
+
+  /* ---------- Screen 2: Review table ---------- */
+  .table-toolbar{
+    display:flex;
+    align-items:center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .repo-chip{
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-muted);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    padding: 6px 12px;
+    border-radius: 100px;
+  }
+  .repo-chip b{ color: var(--text); font-weight: 500; }
+
+  table.assets{
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+  }
+  table.assets thead th{
+    text-align: left;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-dim);
+    font-weight: 600;
+    padding: 0 12px 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  table.assets tbody tr{
+    border-bottom: 1px solid var(--border-soft);
+    transition: background .12s ease;
+  }
+  table.assets tbody tr:hover{ background: rgba(255,255,255,0.015); }
+  table.assets tbody tr.selected{ background: var(--modern-soft); }
+  table.assets td{ padding: 14px 12px; vertical-align: middle; }
+
+  .checkbox{
+    width: 17px; height: 17px;
+    border-radius: 4px;
+    border: 1.5px solid var(--text-dim);
+    background: transparent;
+    cursor: pointer;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    flex: none;
+  }
+  .checkbox.checked{
+    background: var(--modern);
+    border-color: var(--modern);
+  }
+  .checkbox svg{ display:none; width: 11px; height: 11px; }
+  .checkbox.checked svg{ display:block; }
+
+  .comp-name{ font-weight: 600; color: var(--text); font-size: 13.5px; }
+  .comp-path{ font-family: var(--font-mono); font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+
+  .tech-pill{
+    display:inline-flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+  .pill{
+    display:inline-block;
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    font-weight: 600;
+    padding: 4px 9px;
+    border-radius: 100px;
+    width: fit-content;
+  }
+  .pill.legacy{ background: var(--legacy-soft); color: var(--legacy); border: 1px solid var(--legacy-border); }
+  .pill.modern{ background: var(--modern-soft); color: var(--modern); border: 1px solid var(--modern-border); }
+
+  .transform-arrow{
+    color: var(--text-dim);
+    font-size: 14px;
+    padding: 0 4px;
+  }
+
+  .impact{
+    font-size: 11px;
+    font-weight: 600;
+    font-family: var(--font-mono);
+    padding: 3px 8px;
+    border-radius: 100px;
+  }
+  .impact.low{ background: var(--accent2-soft); color: var(--accent2); }
+  .impact.med{ background: var(--legacy-soft); color: var(--legacy); }
+  .impact.high{ background: rgba(229,101,79,0.14); color: var(--danger); }
+
+  .action-bar{
+    display:flex;
+    align-items:center;
+    justify-content: space-between;
+    margin-top: 18px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
+  }
+  .selected-count{ font-size: 13px; color: var(--text-muted); }
+  .selected-count b{ color: var(--text); }
+
+  /* File changes panel */
+  .changes-panel{
+    margin-top: 22px;
+    border-top: 1px dashed var(--border);
+    padding-top: 22px;
+    display: none;
+  }
+  .changes-panel.show{ display:block; animation: fadeUp .35s ease; }
+  .changes-head{
+    display:flex;
+    align-items:center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .changes-head svg{ color: var(--accent2); width: 18px; height: 18px; }
+  .changes-head h3{
+    font-family: var(--font-display);
+    font-size: 15.5px;
+    margin: 0;
+    font-weight: 600;
+  }
+  .file-diff{
+    display:flex;
+    align-items:center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    margin-bottom: 8px;
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+  }
+  .file-diff .fname{ color: var(--text); }
+  .file-diff .fpath{ color: var(--text-dim); }
+  .diff-stats{ display:flex; gap: 10px; flex: none; }
+  .add{ color: var(--accent2); }
+  .rem{ color: var(--danger); }
+
+  /* ---------- Screen 3: Publish ---------- */
+  .publish-grid{
+    display:grid;
+    grid-template-columns: 1.3fr 1fr;
+    gap: 24px;
+  }
+  .summary-box{
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 18px;
+  }
+  .summary-box h4{
+    font-family: var(--font-display);
+    font-size: 13px;
+    margin: 0 0 14px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .summary-row{
+    display:flex;
+    justify-content: space-between;
+    font-size: 13px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .summary-row:last-child{ border-bottom: none; }
+  .summary-row span:first-child{ color: var(--text-dim); }
+  .summary-row span:last-child{ font-family: var(--font-mono); font-weight: 600; }
+
+  .toggle-row{
+    display:flex;
+    align-items:center;
+    justify-content: space-between;
+    padding: 12px 0;
+  }
+  .toggle-row .toggle-label{ font-size: 13.5px; font-weight: 600; }
+  .toggle-row .toggle-sub{ font-size: 11.5px; color: var(--text-dim); margin-top: 2px; }
+  .switch{
+    width: 38px; height: 22px;
+    border-radius: 100px;
+    background: var(--border);
+    position: relative;
+    cursor: pointer;
+    flex: none;
+    transition: background .15s ease;
+  }
+  .switch.on{ background: var(--modern); }
+  .switch::after{
+    content:'';
+    position:absolute;
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: #fff;
+    top: 3px; left: 3px;
+    transition: left .15s ease;
+  }
+  .switch.on::after{ left: 19px; }
+
+  .success-state{
+    display:none;
+    text-align:center;
+    padding: 30px 20px;
+  }
+  .success-state.show{ display:block; animation: fadeUp .35s ease; }
+  .success-icon{
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    background: var(--accent2-soft);
+    border: 1.5px solid var(--accent2);
+    display:flex; align-items:center; justify-content:center;
+    margin: 0 auto 16px;
+  }
+  .success-icon svg{ width: 24px; height: 24px; color: var(--accent2); }
+  .success-state h3{
+    font-family: var(--font-display);
+    font-size: 19px;
+    margin: 0 0 8px;
+  }
+  .success-state p{
+    font-size: 13.5px;
+    color: var(--text-muted);
+    margin: 0 0 4px;
+  }
+  .pr-link{
+    display:inline-block;
+    margin-top: 14px;
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    color: var(--modern);
+    background: var(--modern-soft);
+    border: 1px solid var(--modern-border);
+    padding: 8px 14px;
+    border-radius: 100px;
+  }
+
+  .publish-form.hidden{ display:none; }
+
+  @media (max-width: 760px){
+    .publish-grid{ grid-template-columns: 1fr; }
+    .row-2{ grid-template-columns: 1fr; }
+    .shell{ padding: 20px 16px 60px; }
+    table.assets{ font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <div class="topbar">
+    <div class="brand">
+      <svg class="mark" viewBox="0 0 34 34" fill="none">
+        <path d="M4 17 L13 8 L13 13 L7 17 L13 21 L13 26 Z" fill="#B8863B"/>
+        <path d="M30 17 L21 26 L21 21 L27 17 L21 13 L21 8 Z" fill="#6E6AF5"/>
+      </svg>
+      <div class="brand-text">
+        <h1>Legacy Modernizer</h1>
+        <p>AI agent · repository modernization</p>
+      </div>
+    </div>
+    <div class="proto-badge">Click-through prototype — <b>for team review</b>, not wired to a live agent</div>
+  </div>
+
+  <div class="stepper">
+    <div class="step active" id="stepnav-1" onclick="goToStep(1)">
+      <div class="step-num">1</div>
+      <div>
+        <div class="step-label">Connect</div>
+        <div class="step-sub">repo url</div>
+      </div>
+    </div>
+    <div class="step-connector"></div>
+    <div class="step" id="stepnav-2" onclick="goToStep(2)">
+      <div class="step-num">2</div>
+      <div>
+        <div class="step-label">Review &amp; Modernize</div>
+        <div class="step-sub">select · apply</div>
+      </div>
+    </div>
+    <div class="step-connector"></div>
+    <div class="step" id="stepnav-3" onclick="goToStep(3)">
+      <div class="step-num">3</div>
+      <div>
+        <div class="step-label">Publish</div>
+        <div class="step-sub">push to git</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN 1 — CONNECT ============ -->
+  <div class="screen active" id="screen-1">
+    <div class="card">
+      <div class="screen-head">
+        <p class="screen-eyebrow">Step 1 of 3</p>
+        <h2 class="screen-title">Connect a repository</h2>
+        <p class="screen-desc">Point the agent at the legacy codebase you want assessed. It clones read-only and never modifies anything until you approve changes in step 2.</p>
+      </div>
+
+      <div class="connect-card">
+        <div class="field">
+          <label for="repoUrl">Repository URL</label>
+          <input class="input" id="repoUrl" type="text" placeholder="https://github.com/your-org/legacy-billing-service.git" value="https://github.com/acme-corp/legacy-billing-service.git">
+        </div>
+
+        <div class="row-2">
+          <div class="field">
+            <label for="branch">Branch to scan</label>
+            <input class="input" id="branch" type="text" value="main">
+          </div>
+          <div class="field">
+            <label for="authMethod">Access method</label>
+            <input class="input plain" id="authMethod" type="text" value="SSH deploy key (read-only)" readonly>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Scan depth</label>
+          <input class="input plain" type="text" value="Full repository — dependencies, framework versions, deprecated APIs" readonly>
+          <div class="hint">Configurable per project later; fixed for this walkthrough.</div>
+        </div>
+
+        <button class="btn btn-primary btn-full" onclick="startScan()">Scan repository</button>
+
+        <div class="scan-status" id="scanStatus" style="display:none;">
+          <span class="dot"></span> <span id="scanStatusText">Cloning repository and analyzing dependency manifests…</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN 2 — REVIEW & MODERNIZE ============ -->
+  <div class="screen" id="screen-2">
+    <div class="card">
+      <div class="screen-head">
+        <p class="screen-eyebrow">Step 2 of 3</p>
+        <h2 class="screen-title">Review findings</h2>
+        <p class="screen-desc">The agent found 7 components running outdated technology. Select the rows to modernize — the agent edits code, config, and manifests to match the suggested version.</p>
+      </div>
+
+      <div class="table-toolbar">
+        <span class="repo-chip">📦 <b>legacy-billing-service</b> · main</span>
+        <span class="repo-chip">7 components scanned</span>
+      </div>
+
+      <table class="assets">
+        <thead>
+          <tr>
+            <th style="width:36px;"></th>
+            <th>Component</th>
+            <th>Current</th>
+            <th></th>
+            <th>Suggested</th>
+            <th style="width:90px;">Impact</th>
+          </tr>
+        </thead>
+        <tbody id="assetRows">
+          <!-- rows injected by JS -->
+        </tbody>
+      </table>
+
+      <div class="action-bar">
+        <div class="selected-count"><b id="selCount">0</b> of 7 selected</div>
+        <div style="display:flex; gap:10px;">
+          <button class="btn btn-ghost" onclick="goToStep(1)">← Back</button>
+          <button class="btn btn-primary" id="modernizeBtn" disabled onclick="applyModernization()">Modernize selected</button>
+        </div>
+      </div>
+
+      <div class="changes-panel" id="changesPanel">
+        <div class="changes-head">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+          <h3>Changes applied</h3>
+        </div>
+        <div id="fileDiffList"></div>
+        <button class="btn btn-success" style="margin-top:14px;" onclick="goToStep(3)">Continue to publish →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ SCREEN 3 — PUBLISH ============ -->
+  <div class="screen" id="screen-3">
+    <div class="card">
+      <div class="screen-head">
+        <p class="screen-eyebrow">Step 3 of 3</p>
+        <h2 class="screen-title">Push to Git</h2>
+        <p class="screen-desc">Changes are staged locally. Confirm the target branch and commit message, then push — nothing leaves the sandbox until you click Publish.</p>
+      </div>
+
+      <div class="publish-form" id="publishForm">
+        <div class="publish-grid">
+          <div>
+            <div class="field">
+              <label>Target repository</label>
+              <input class="input" type="text" value="https://github.com/acme-corp/legacy-billing-service.git" readonly>
+            </div>
+            <div class="row-2">
+              <div class="field">
+                <label for="newBranch">New branch name</label>
+                <input class="input" id="newBranch" type="text" value="legacy-modernizer/batch-1">
+              </div>
+              <div class="field">
+                <label for="baseBranch">Base branch</label>
+                <input class="input" id="baseBranch" type="text" value="main">
+              </div>
+            </div>
+            <div class="field">
+              <label for="commitMsg">Commit message</label>
+              <textarea class="textarea" id="commitMsg" rows="3">Modernize legacy dependencies
+
+Applied via Legacy Modernizer agent — 4 components updated.</textarea>
+            </div>
+
+            <div class="toggle-row" style="border-top:1px solid var(--border); border-bottom:1px solid var(--border);">
+              <div>
+                <div class="toggle-label">Open a pull request</div>
+                <div class="toggle-sub">Recommended — lets the team review before merging to main</div>
+              </div>
+              <div class="switch on" id="prToggle" onclick="this.classList.toggle('on')"></div>
+            </div>
+
+            <button class="btn btn-primary btn-full" onclick="pushChanges()">Push changes</button>
+          </div>
+
+          <div class="summary-box">
+            <h4>Summary</h4>
+            <div class="summary-row"><span>Components modernized</span><span id="sumComponents">4</span></div>
+            <div class="summary-row"><span>Files changed</span><span id="sumFiles">9</span></div>
+            <div class="summary-row"><span>Lines added</span><span class="add" id="sumAdd">+142</span></div>
+            <div class="summary-row"><span>Lines removed</span><span class="rem" id="sumRem">−96</span></div>
+            <div class="summary-row"><span>Target branch</span><span id="sumBranch">main</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="success-state" id="successState">
+        <div class="success-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6L9 17l-5-5"/></svg>
+        </div>
+        <h3>Pushed successfully</h3>
+        <p>Branch <b style="font-family:var(--font-mono); color:var(--text);">legacy-modernizer/batch-1</b> was pushed to <b style="font-family:var(--font-mono); color:var(--text);">acme-corp/legacy-billing-service</b>.</p>
+        <p id="prStatusText">A pull request was opened against main.</p>
+        <div class="pr-link">🔗 #482 — Modernize: Spring Boot 3.3, Java 21, JUnit 5, Log4j2</div>
+        <div style="margin-top:24px;">
+          <button class="btn btn-ghost" onclick="resetAll()">Start over</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const assetData = [
+    { id: 1, name: "Core service runtime", path: "pom.xml", current: "Java 8", suggested: "Java 21 LTS", impact: "high" },
+    { id: 2, name: "Application framework", path: "pom.xml", current: "Spring Boot 2.3.x", suggested: "Spring Boot 3.3.x", impact: "high" },
+    { id: 3, name: "Logging", path: "src/main/resources/log4j.properties", current: "Log4j 1.2.x", suggested: "Log4j2 2.x (SLF4J)", impact: "med" },
+    { id: 4, name: "Unit tests", path: "src/test/java/**", current: "JUnit 3", suggested: "JUnit 5 (Jupiter)", impact: "med" },
+    { id: 5, name: "Frontend UI", path: "webapp/js/app.js", current: "jQuery 1.12", suggested: "Vanilla JS (ES2023)", impact: "high" },
+    { id: 6, name: "Build tooling", path: "webapp/webpack.config.js", current: "Webpack 3", suggested: "Vite 5", impact: "low" },
+    { id: 7, name: "Batch jobs runtime", path: "requirements.txt", current: "Python 2.7", suggested: "Python 3.12", impact: "low" },
+  ];
+
+  const fileChanges = {
+    1: [{ f: "pom.xml", add: 4, rem: 4 }],
+    2: [{ f: "pom.xml", add: 18, rem: 12 }, { f: "src/main/java/.../Application.java", add: 6, rem: 3 }],
+    3: [{ f: "src/main/resources/log4j2.xml", add: 22, rem: 0 }, { f: "src/main/resources/log4j.properties", add: 0, rem: 14 }],
+    4: [{ f: "src/test/java/.../BillingServiceTest.java", add: 31, rem: 22 }],
+    5: [{ f: "webapp/js/app.js", add: 47, rem: 38 }],
+    6: [{ f: "webapp/webpack.config.js", add: 0, rem: 9 }, { f: "webapp/vite.config.js", add: 14, rem: 0 }],
+    7: [{ f: "requirements.txt", add: 3, rem: 2 }, { f: "batch/parser.py", add: 9, rem: 6 }],
+  };
+
+  const selected = new Set();
+
+  function renderRows(){
+    const tbody = document.getElementById('assetRows');
+    tbody.innerHTML = assetData.map(a => `
+      <tr id="row-${a.id}">
+        <td>
+          <div class="checkbox" id="chk-${a.id}" onclick="toggleRow(${a.id})">
+            <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>
+          </div>
+        </td>
+        <td>
+          <div class="comp-name">${a.name}</div>
+          <div class="comp-path">${a.path}</div>
+        </td>
+        <td><span class="pill legacy">${a.current}</span></td>
+        <td><span class="transform-arrow">→</span></td>
+        <td><span class="pill modern">${a.suggested}</span></td>
+        <td><span class="impact ${a.impact}">${a.impact}</span></td>
+      </tr>
+    `).join('');
+  }
+
+  function toggleRow(id){
+    const chk = document.getElementById('chk-'+id);
+    const row = document.getElementById('row-'+id);
+    if(selected.has(id)){
+      selected.delete(id);
+      chk.classList.remove('checked');
+      row.classList.remove('selected');
+    } else {
+      selected.add(id);
+      chk.classList.add('checked');
+      row.classList.add('selected');
+    }
+    document.getElementById('selCount').textContent = selected.size;
+    document.getElementById('modernizeBtn').disabled = selected.size === 0;
+  }
+
+  function startScan(){
+    const status = document.getElementById('scanStatus');
+    status.style.display = 'flex';
+    document.getElementById('scanStatusText').textContent = 'Cloning repository and analyzing dependency manifests…';
+    setTimeout(() => {
+      goToStep(2);
+    }, 900);
+  }
+
+  function applyModernization(){
+    const panel = document.getElementById('changesPanel');
+    const list = document.getElementById('fileDiffList');
+    let rows = [];
+    selected.forEach(id => {
+      (fileChanges[id] || []).forEach(fc => rows.push(fc));
+    });
+    list.innerHTML = rows.map(fc => `
+      <div class="file-diff">
+        <span class="fname">${fc.f}</span>
+        <span class="diff-stats"><span class="add">+${fc.add}</span><span class="rem">−${fc.rem}</span></span>
+      </div>
+    `).join('');
+    panel.classList.add('show');
+
+    // update publish-step summary
+    const totalAdd = rows.reduce((s,r)=>s+r.add,0);
+    const totalRem = rows.reduce((s,r)=>s+r.rem,0);
+    document.getElementById('sumComponents').textContent = selected.size;
+    document.getElementById('sumFiles').textContent = rows.length;
+    document.getElementById('sumAdd').textContent = '+'+totalAdd;
+    document.getElementById('sumRem').textContent = '−'+totalRem;
+
+    // keep the publish-step commit message and PR title consistent with what was actually selected
+    const suggestedNames = assetData.filter(a => selected.has(a.id)).map(a => a.suggested);
+    const shortList = suggestedNames.slice(0,3).join(', ') + (suggestedNames.length > 3 ? ', …' : '');
+    document.getElementById('commitMsg').value =
+      `Modernize: ${shortList}\n\nApplied via Legacy Modernizer agent — ${selected.size} component${selected.size===1?'':'s'} updated.`;
+    document.querySelector('.pr-link').textContent = `🔗 #482 — Modernize: ${shortList}`;
+
+    document.getElementById('modernizeBtn').disabled = true;
+  }
+
+  function pushChanges(){
+    document.getElementById('publishForm').classList.add('hidden');
+    const state = document.getElementById('successState');
+    const prOn = document.getElementById('prToggle').classList.contains('on');
+    document.getElementById('prStatusText').textContent = prOn
+      ? 'A pull request was opened against main.'
+      : 'Pushed directly — no pull request was opened.';
+    document.querySelector('.pr-link').style.display = prOn ? 'inline-block' : 'none';
+    state.classList.add('show');
+  }
+
+  function resetAll(){
+    selected.clear();
+    renderRows();
+    document.getElementById('selCount').textContent = '0';
+    document.getElementById('modernizeBtn').disabled = true;
+    document.getElementById('changesPanel').classList.remove('show');
+    document.getElementById('publishForm').classList.remove('hidden');
+    document.getElementById('successState').classList.remove('show');
+    goToStep(1);
+  }
+
+  function goToStep(n){
+    for(let i=1;i<=3;i++){
+      document.getElementById('screen-'+i).classList.toggle('active', i===n);
+      const nav = document.getElementById('stepnav-'+i);
+      nav.classList.toggle('active', i===n);
+      nav.classList.toggle('done', i<n);
+    }
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+
+  renderRows();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,40 @@
+{
+  "components": [
+    {
+      "id": "java-runtime",
+      "name": "Core service runtime",
+      "path": "pom.xml",
+      "detect": { "type": "java-version", "maxVersion": 11 },
+      "suggested": "Java 21 LTS",
+      "impact": "high",
+      "requires": []
+    },
+    {
+      "id": "spring-boot",
+      "name": "Application framework",
+      "path": "pom.xml",
+      "detect": { "type": "spring-boot", "maxMajor": 2 },
+      "suggested": "Spring Boot 3.3.x",
+      "impact": "high",
+      "requires": ["java-runtime"]
+    },
+    {
+      "id": "junit",
+      "name": "Unit tests",
+      "path": "src/test/java/**",
+      "detect": { "type": "junit", "versions": ["3", "4"] },
+      "suggested": "JUnit 5 (Jupiter)",
+      "impact": "med",
+      "requires": []
+    },
+    {
+      "id": "logging",
+      "name": "Logging",
+      "path": "src/main/resources/log4j.properties",
+      "detect": { "type": "log4j1" },
+      "suggested": "Log4j2 2.x (SLF4J)",
+      "impact": "med",
+      "requires": []
+    }
+  ]
+}

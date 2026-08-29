@@ -1,0 +1,16 @@
+---
+description: Modernization constraints for legacy Java/Maven repos
+alwaysApply: true
+---
+
+# Modernization Constraints
+
+When modernizing this repository:
+
+- **No new dependencies** — version bumps and direct replacements only in pom.xml
+- **Do not touch migrations** — db/migration, flyway, liquibase, schema.sql, data.sql
+- **Do not change public API** — Controller signatures, URL paths, request/response shapes, DTOs
+- **No behavioral improvements** — if tests fail, the refactor is wrong
+- **One batch at a time** — no drive-by refactors
+
+Characterization tests must pass before and after every change batch.

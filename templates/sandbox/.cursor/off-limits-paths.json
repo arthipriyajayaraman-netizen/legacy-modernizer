@@ -1,0 +1,14 @@
+{
+  "paths": [
+    "**/db/migration/**",
+    "**/migrations/**",
+    "**/flyway/**",
+    "**/liquibase/**",
+    "**/*Controller.java",
+    "**/dto/**",
+    "LICENSE",
+    "LICENSE.*",
+    ".github/**",
+    "**/application-prod.properties"
+  ]
+}
